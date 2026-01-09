@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Personal Wallet Dashboard - Demo</title>
+    <title>Crypto Wallet Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
     :root {
         --bg-app: #151516; 
-        --bg-card: #222222;
+        --bg-card: #1C1C1E; /* Slightly darker to match iOS screenshot */
         --bg-button: #2A2A2A;
         --text-primary: #FFFFFF;
         --text-secondary: #999999;
@@ -18,7 +18,7 @@
         --accent-purple: #AC9EF3;
         --accent-green: #27D17F;
         --accent-green-bg: rgba(39, 209, 127, 0.15);
-        --border-radius-card: 16px;
+        --border-radius-card: 18px;
         --pad-x: 16px;
         --space-stack: 12px;
     }
@@ -56,7 +56,7 @@
         transform: translateX(-50%);
         width: 300px;
         height: 300px;
-        background: radial-gradient(circle, rgba(39, 209, 127, 0.15) 0%, rgba(21, 21, 22, 0) 70%);
+        background: radial-gradient(circle, rgba(172, 158, 243, 0.15) 0%, rgba(21, 21, 22, 0) 70%);
         z-index: 0;
         pointer-events: none;
     }
@@ -86,10 +86,7 @@
         transition: transform 0.1s ease;
     }
 
-    .profile-btn:active {
-        transform: scale(0.9);
-        background-color: #444;
-    }
+    .profile-btn:active { transform: scale(0.9); background-color: #444; }
 
     .account-selector {
         display: flex;
@@ -172,6 +169,14 @@
         color: var(--accent-purple);
     }
 
+    /* TOKEN LIST STYLES */
+    .token-section-title {
+        padding: 0 var(--pad-x) 12px;
+        font-size: 20px;
+        font-weight: 700;
+        color: white;
+    }
+
     .token-list {
         padding: 0 var(--pad-x);
         display: flex;
@@ -180,39 +185,100 @@
     }
 
     .token-card {
-        background-color: #222222;
+        background-color: var(--bg-card);
         border-radius: var(--border-radius-card);
         padding: 16px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        height: 76px;
+        height: 80px;
+        position: relative;
     }
 
     .token-left {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
     }
 
     .token-icon-wrapper {
-        position: relative;
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .token-img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
+    .token-img-svg {
+        width: 44px;
+        height: 44px;
     }
 
-    .token-name { font-size: 16px; font-weight: 600; }
-    .token-balance { font-size: 13px; color: var(--text-secondary); }
-    .token-right { text-align: right; }
-    .token-fiat { font-size: 16px; font-weight: 600; }
-    .token-change { font-size: 13px; color: var(--accent-green); font-weight: 500; }
+    .token-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+    }
 
+    .token-name-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .token-name { 
+        font-size: 17px; 
+        font-weight: 600; 
+        color: #fff;
+    }
+
+    /* The Purple Verified Checkmark */
+    .verified-badge {
+        color: #AC9EF3;
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Taproot Badge */
+    .taproot-badge {
+        background-color: #383838;
+        color: #C0C0C0;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 6px;
+        border-radius: 6px;
+        margin-left: 4px;
+        display: inline-block;
+    }
+
+    .token-balance-unit { 
+        font-size: 14px; 
+        color: var(--text-secondary); 
+        font-weight: 500;
+    }
+
+    .token-right { 
+        text-align: right; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .token-fiat { 
+        font-size: 17px; 
+        font-weight: 500; 
+        color: #fff;
+    }
+
+    .token-fiat-sub { 
+        font-size: 14px; 
+        color: var(--text-secondary);
+        font-weight: 500; 
+    }
+
+    /* Bottom Nav */
     .bottom-nav {
         position: fixed;
         bottom: 0;
@@ -228,14 +294,13 @@
         align-items: flex-start;
         padding: 18px 24px 0;
         z-index: 100;
+        border-top: 1px solid #222;
     }
 
     .nav-item { color: var(--text-tertiary); display: flex; flex-direction: column; align-items: center; }
     .nav-item.active { color: var(--accent-purple); }
     .nav-item svg { width: 26px; height: 26px; }
 
-    .bg-teal { background-color: #26A17B; }
-    .bg-black { background-color: #000; border: 1px solid #333; }
 </style>
 </head>
 <body>
@@ -263,7 +328,7 @@
     <section class="balance-section">
         <div class="balance-amount" id="balanceDisplay">€0.00</div>
         <div class="balance-change" id="changeDisplay">
-            +€0.00 +0.00%
+            +€124.50 +2.45%
         </div>
     </section>
 
@@ -274,15 +339,107 @@
         <div class="action-btn-col"><button class="action-btn"><svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></button><span class="action-label">Buy</span></div>
     </section>
 
+    <h2 class="token-section-title">Tokens ></h2>
+
     <section class="token-list">
+        <!-- SOLANA -->
         <div class="token-card">
             <div class="token-left">
                 <div class="token-icon-wrapper">
-                    <div class="token-img bg-teal" style="display:flex;align-items:center;justify-content:center; color:white; font-weight:700; font-size: 20px;">T</div>
+                    <!-- Solana SVG -->
+                    <svg class="token-img-svg" viewBox="0 0 128 128">
+                        <circle cx="64" cy="64" r="64" fill="black"/>
+                        <path d="M32 44H84.5C86.5 44 88.5 45 89.5 47L96 58.5H43.5C41.5 58.5 39.5 57.5 38.5 55.5L32 44Z" fill="url(#sol_grad_1)"/>
+                        <path d="M96 84H43.5C41.5 84 39.5 83 38.5 81L32 69.5H84.5C86.5 69.5 88.5 70.5 89.5 72.5L96 84Z" fill="url(#sol_grad_2)"/>
+                        <path d="M32 95H84.5C86.5 95 88.5 96 89.5 98L96 109.5H43.5C41.5 109.5 39.5 108.5 38.5 106.5L32 95Z" transform="translate(0 -76)" fill="url(#sol_grad_3)"/> <!-- Adjusted visual approximation -->
+                        <path d="M34 64h60a4 4 0 0 0 4-4l-8-14H30a4 4 0 0 0-4 4l8 14z" fill="#14F195" opacity="0"/> <!-- Helper spacer -->
+                         <defs>
+                            <linearGradient id="sol_grad_1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#9945FF"/><stop offset="100%" style="stop-color:#14F195"/></linearGradient>
+                            <linearGradient id="sol_grad_2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#14F195"/><stop offset="100%" style="stop-color:#9945FF"/></linearGradient>
+                            <linearGradient id="sol_grad_3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#9945FF"/><stop offset="100%" style="stop-color:#14F195"/></linearGradient>
+                        </defs>
+                        <!-- Simple path reconstruction for strict visual match of Solana lines -->
+                        <path d="M32 42h60l4 8h-60z" fill="url(#sol_grad_1)" />
+                        <path d="M36 60h60l-4 8h-60z" fill="url(#sol_grad_2)" />
+                        <path d="M32 78h60l4 8h-60z" fill="url(#sol_grad_1)" />
+                    </svg>
                 </div>
-                <div class="token-info"><div class="token-name">Tether USD</div><div class="token-balance">Demo Balance</div></div>
+                <div class="token-info">
+                    <div class="token-name-row">
+                        <span class="token-name">Solana</span>
+                        <!-- Verified Badge -->
+                        <svg class="verified-badge" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <div class="token-balance-unit" id="sol-unit">0 SOL</div>
+                </div>
             </div>
-            <div class="token-right"><div class="token-fiat">--</div><div class="token-change">+0.2%</div></div>
+            <div class="token-right">
+                <div class="token-fiat" id="sol-fiat">€0.00</div>
+                <div class="token-fiat-sub">$0.00</div>
+            </div>
+        </div>
+
+        <!-- ETHEREUM -->
+        <div class="token-card">
+            <div class="token-left">
+                <div class="token-icon-wrapper">
+                    <!-- Ethereum SVG -->
+                    <svg class="token-img-svg" viewBox="0 0 128 128">
+                        <circle cx="64" cy="64" r="64" fill="white"/>
+                        <path d="M64 24L62.6 28.5V86l1.4 1.4L90 71 64 24z" fill="#343434"/>
+                        <path d="M64 24L38 71l26 16.4V24z" fill="#8C8C8C"/>
+                        <path d="M64 87.4l-1.4 1.7v28l1.4 4L90.1 76 64 87.4z" fill="#3C3C3B"/>
+                        <path d="M64 121.1V87.4L38 76l26 45.1z" fill="#8C8C8C"/>
+                        <path d="M64 86V71l26 0L64 86z" fill="#141414"/>
+                        <path d="M38 71l26 15V71H38z" fill="#393939"/>
+                    </svg>
+                </div>
+                <div class="token-info">
+                    <div class="token-name-row">
+                        <span class="token-name">Ethereum</span>
+                        <!-- Verified Badge -->
+                        <svg class="verified-badge" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <div class="token-balance-unit" id="eth-unit">0 ETH</div>
+                </div>
+            </div>
+            <div class="token-right">
+                <div class="token-fiat" id="eth-fiat">€0.00</div>
+                <div class="token-fiat-sub">$0.00</div>
+            </div>
+        </div>
+
+        <!-- BITCOIN -->
+        <div class="token-card">
+            <div class="token-left">
+                <div class="token-icon-wrapper">
+                    <!-- Bitcoin SVG -->
+                    <svg class="token-img-svg" viewBox="0 0 128 128">
+                        <circle cx="64" cy="64" r="64" fill="#F7931A"/>
+                        <path d="M90.6 57c2.1-14-8.6-21.5-23.2-26.6l4.8-19-11.6-2.9-4.7 18.7c-3-.8-6.2-1.5-9.4-2.2l4.7-18.8-11.6-2.9-4.8 19c-2.5-.6-5-.9-7.5-1.5l0-.1-16 4 3.9 15.6s10.8-2.7 10.6-2.5c5.9 1.5 7 5.3 6.8 8.4l-6.8 27.2c.4.1.9.3 1.5.5-.5-.1-.9-.3-1.4-.4l-9.5 38c-.8 2-2.8 5-7.3 3.8.2.3-10.6 2.7-10.6 2.7l-7.4 17 15.1 3.8c2.8.7 5.5 1.4 8.2 2.1l-4.8 19.2 11.6 2.9 4.8-19c3.2.9 6.3 1.7 9.4 2.4l-4.7 19 11.6 2.9 4.8-19.1c19.8 3.7 34.7 2.2 40.9-15.7 5-11.4-.2-18-8.5-22.3 6-1.4 10.5-5.3 11.7-13.3zm-14.7 38.6c-2 8-15.6 3.7-20 2.6l3.6-14.3c4.4 1.1 18.6 3.3 16.4 11.7zm2-21.3c-1.8 7.3-13.1 3.6-16.7 2.7l3.2-13c3.7.9 15.6 2.6 13.5 10.3z" fill="white"/>
+                    </svg>
+                </div>
+                <div class="token-info">
+                    <div class="token-name-row">
+                        <span class="token-name">Bitcoin</span>
+                        <!-- Verified Badge -->
+                        <svg class="verified-badge" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <!-- Taproot Pill -->
+                        <span class="taproot-badge">Taproot</span>
+                    </div>
+                    <div class="token-balance-unit" id="btc-unit">0 BTC</div>
+                </div>
+            </div>
+            <div class="token-right">
+                <div class="token-fiat" id="btc-fiat">€0.00</div>
+                <div class="token-fiat-sub">$0.00</div>
+            </div>
         </div>
     </section>
 
@@ -298,40 +455,78 @@
     document.addEventListener('DOMContentLoaded', () => {
         const balanceEl = document.getElementById('balanceDisplay');
         const profileBtn = document.getElementById('profileTrigger');
-        const STORAGE_KEY = 'demo_wallet_balance_v1';
+        const STORAGE_KEY = 'demo_wallet_balance_v2';
         
-        const EUR = new Intl.NumberFormat('de-DE', {
-            style: 'currency',
-            currency: 'EUR',
-        });
+        // --- 1. Custom Formatter for "Euro in front, comma for thousands, dot for decimals" ---
+        function formatMoney(amount) {
+            // Using en-US ensures dot for decimal and comma for thousands
+            // We prepend the Euro symbol manually
+            return '€' + amount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
 
-        function updateDisplay(val) {
-            balanceEl.innerText = EUR.format(val);
+        function formatDollar(amount) {
+            return '$' + (amount * 1.05).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
 
         function getSavedBalance() {
             let balance = localStorage.getItem(STORAGE_KEY);
-            return balance ? parseFloat(balance) : 5000;
+            return balance ? parseFloat(balance) : 12450.50; // Default nice number
         }
 
-        // 1. Logic for increasing money on every refresh
+        // Logic for increasing money on every refresh
         let currentBalance = getSavedBalance();
         const increment = Math.random() * 60;
         const newTotal = currentBalance + increment;
         
         localStorage.setItem(STORAGE_KEY, newTotal);
-        updateDisplay(newTotal);
+        
+        // Update Main Display
+        balanceEl.innerText = formatMoney(newTotal);
 
-        // 2. Logic for clicking profile to reset to 5000€
+        // --- 3. Distribute Balances & Calculate Units ---
+        // Allocation: 50% BTC, 30% ETH, 20% SOL
+        const btcFiat = newTotal * 0.50;
+        const ethFiat = newTotal * 0.30;
+        const solFiat = newTotal * 0.20;
+
+        // Fictional Prices for calculation
+        const priceBTC = 92000; 
+        const priceETH = 3100;
+        const priceSOL = 145;
+
+        // Calculate Units
+        const btcUnits = btcFiat / priceBTC;
+        const ethUnits = ethFiat / priceETH;
+        const solUnits = solFiat / priceSOL;
+
+        // Update DOM Elements
+        // Solana
+        document.getElementById('sol-fiat').innerText = formatMoney(solFiat);
+        document.getElementById('sol-unit').innerText = solUnits.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' SOL';
+        document.getElementById('sol-fiat').nextElementSibling.innerText = formatDollar(solFiat); // Update sub dollar amount
+
+        // Ethereum
+        document.getElementById('eth-fiat').innerText = formatMoney(ethFiat);
+        document.getElementById('eth-unit').innerText = ethUnits.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ETH';
+        document.getElementById('eth-fiat').nextElementSibling.innerText = formatDollar(ethFiat);
+
+        // Bitcoin
+        document.getElementById('btc-fiat').innerText = formatMoney(btcFiat);
+        document.getElementById('btc-unit').innerText = btcUnits.toLocaleString('en-US', {maximumFractionDigits: 4}) + ' BTC';
+        document.getElementById('btc-fiat').nextElementSibling.innerText = formatDollar(btcFiat);
+
+
+        // Logic for clicking profile to reset
         profileBtn.addEventListener('click', () => {
-            const resetVal = 5000;
+            const resetVal = 12450.50;
             localStorage.setItem(STORAGE_KEY, resetVal);
-            updateDisplay(resetVal);
-            
-            // Visual feedback
-            balanceEl.style.transition = 'color 0.2s';
-            balanceEl.style.color = '#AC9EF3';
-            setTimeout(() => { balanceEl.style.color = '#FFFFFF'; }, 300);
+            location.reload(); 
         });
     });
 </script>
